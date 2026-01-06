@@ -24,6 +24,7 @@ bash <(curl -sL https://raw.githubusercontent.com/Lucenx9/gold-fastfetch/main/in
 - **Smart backups** - Automatic backup rotation (keeps last 5)
 - **Media Ready** - Shows Now Playing & Player status (Spotify, VLC, etc.)
 - **Gaming Ready** - Detects connected Gamepads/Controllers
+- **Battery Status** - Shows battery percentage and charging status (for laptops)
 - **XDG compliant** - Uses standard config/state/cache paths
 
 ## Compatibility
