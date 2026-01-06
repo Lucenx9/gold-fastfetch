@@ -22,6 +22,8 @@ bash <(curl -sL https://raw.githubusercontent.com/Lucenx9/gold-fastfetch/main/in
 - **Update checker** - Cached pacman/AUR update counts (Arch Linux)
 - **Icon toggle** - Auto-detects Nerd Fonts, with manual override
 - **Smart backups** - Automatic backup rotation (keeps last 5)
+- **Media Ready** - Shows Now Playing & Player status (Spotify, VLC, etc.)
+- **Gaming Ready** - Detects connected Gamepads/Controllers
 - **XDG compliant** - Uses standard config/state/cache paths
 
 ## Compatibility
