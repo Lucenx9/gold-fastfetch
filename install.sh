@@ -410,6 +410,8 @@ EOF
 if [[ -f "$CONFIG_DIR/config.jsonc" ]]; then
     echo -e "${GREEN}==> Installation complete!${NC}"
     echo -e "Test it by running: ${YELLOW}fastfetch${NC}"
+    echo -e "\nTip: Add this to your .bashrc / .zshrc for speed:"
+    echo -e "${YELLOW}alias ff='fastfetch'${NC}"
 else
     echo -e "${RED}[Error] Failed to create config file.${NC}"
     exit 1
