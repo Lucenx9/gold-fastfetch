@@ -38,8 +38,9 @@ sudo pacman -S fastfetch pciutils pacman-contrib
 ## Installation
 
 ```bash
-git clone https://github.com/Lucenx9/fastfetch-cosmic.git
-cd fastfetch-cosmic
+git clone https://github.com/Lucenx9/gold-fastfetch.git
+cd gold-fastfetch
+chmod +x install.sh
 ./install.sh
 ```
 
