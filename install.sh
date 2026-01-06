@@ -4,6 +4,12 @@
 
 set -euo pipefail
 
+# --- Colors (defined early for use in error messages) ---
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m'
+
 # 0. Check Root
 if [[ $EUID -eq 0 ]]; then
     echo -e "${RED}[Error] Do not run this script as root/sudo.${NC}"
@@ -16,12 +22,6 @@ if [[ ! -f /etc/arch-release ]]; then
     echo "Running on non-Arch systems may break your config."
     exit 1
 fi
-
-# --- Colors ---
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NC='\033[0m'
 
 # XDG paths
 CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/fastfetch"
@@ -110,9 +110,9 @@ if [[ -d "$CONFIG_DIR" ]] && [[ -n "$(ls -A "$CONFIG_DIR" 2>/dev/null)" ]]; then
 
     if cp -a "$CONFIG_DIR/." "$BACKUP_PATH/"; then
         echo -e "${GREEN}  -> Backup successful.${NC}"
-        # Keep only last 5 backups
-        find "$STATE_DIR/backups" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' 2>/dev/null | \
-        sort -nr | tail -n +6 | cut -d ' ' -f 2- | xargs -r rm -rf
+        # Keep only last 5 backups (using -print0/xargs -0 for safe path handling)
+        find "$STATE_DIR/backups" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\0' 2>/dev/null | \
+        sort -znr | tail -zn +6 | cut -zd ' ' -f 2- | xargs -r0 rm -rf
     else
         echo -e "${RED}[!] Backup failed.${NC}"
         if [[ -t 0 ]]; then
@@ -204,17 +204,21 @@ count_updates() {
 
 should_refresh() {
   [[ ! -f "$CACHE_FILE" ]] && return 0
-  
+
   local file_time pacman_time now age
   file_time=$(stat -c %Y "$CACHE_FILE" 2>/dev/null || echo 0)
-  
+
   # Smart Check: If pacman DB changed recently, refresh immediately
   pacman_time=$(stat -c %Y "/var/lib/pacman/local" 2>/dev/null || echo 0)
   if (( pacman_time > file_time )); then return 0; fi
 
   now=$(date +%s)
   age=$((now - file_time))
-  (( age > CACHE_TTL ))
+  if (( age > CACHE_TTL )); then
+    return 0
+  else
+    return 1
+  fi
 }
 
 if [[ -d "$LOCK_FILE" ]]; then
@@ -231,7 +235,13 @@ elif should_refresh; then
       count_updates
     fi ) >/dev/null 2>&1 &
 fi
-cat "$CACHE_FILE"
+
+# Ensure cache file exists before reading
+if [[ -f "$CACHE_FILE" ]]; then
+  cat "$CACHE_FILE"
+else
+  echo "Repo: ? | AUR: ?"
+fi
 EOF
 
 # --- disk_detect.sh ---
@@ -273,13 +283,23 @@ get_label() {
 
 to_gib() {
     local val="$1"
-    [[ "$val" == "0B" || "$val" == "-" ]] && { echo "0.0"; return; }
-    local num="${val%[GMKT]*}"; local suffix="${val##*[0-9.]}"
-    case "$suffix" in
+    [[ "$val" == "0B" || "$val" == "-" || -z "$val" ]] && { echo "0.0"; return; }
+    # Extract numeric part and suffix more reliably
+    local num suffix
+    if [[ "$val" =~ ^([0-9.]+)([GMKTB]i?)?$ ]]; then
+        num="${BASH_REMATCH[1]}"
+        suffix="${BASH_REMATCH[2]}"
+    else
+        echo "0.0"
+        return
+    fi
+    # Handle both "G" and "Gi" style suffixes
+    case "${suffix%%i}" in
         G) awk "BEGIN{printf \"%.1f\", $num}" ;;
         M) awk "BEGIN{printf \"%.1f\", $num/1024}" ;;
         K) awk "BEGIN{printf \"%.1f\", $num/1048576}" ;;
         T) awk "BEGIN{printf \"%.1f\", $num*1024}" ;;
+        B|"") awk "BEGIN{printf \"%.1f\", $num/1073741824}" ;;
         *) awk "BEGIN{printf \"%.1f\", $num}" ;;
     esac
 }
@@ -288,7 +308,11 @@ declare -A seen_sizes
 first=1; disk_num=1
 
 while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
     read -r mount fstype size used percent fslabel <<< "$line"
+
+    # Validate required fields exist
+    [[ -z "$mount" || -z "$fstype" || -z "$size" || -z "$used" || -z "$percent" ]] && continue
 
     [[ "$mount" =~ ^/boot ]] && continue
     [[ "$mount" =~ ^/run ]] && continue
@@ -317,6 +341,11 @@ while IFS= read -r line; do
     printf "%s %s/%sG (%s) %s" "$label" "$used_gib" "$size_gib" "$percent" "$bar"
     ((disk_num++))
 done < <(timeout 2s findmnt -rn -o TARGET,FSTYPE,SIZE,USED,USE%,LABEL --real --types notmpfs,nofuse.sshfs,nonfs,nocifs 2>/dev/null)
+
+# Handle case where no disks were found
+if [[ $first -eq 1 ]]; then
+    echo "N/A (no disks detected)"
+fi
 DISKEOF
 
 chmod +x "$CONFIG_DIR/"*.sh
