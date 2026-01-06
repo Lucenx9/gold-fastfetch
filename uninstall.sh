@@ -3,15 +3,27 @@ set -euo pipefail
 
 # uninstall.sh - Removes Gold Fastfetch Config and restores backup
 
-CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/fastfetch"
-STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/fastfetch"
-BACKUP_DIR="$STATE_DIR/backups"
-
 # Colors
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m'
+
+# Safety check: no root
+if [[ $EUID -eq 0 ]]; then
+    echo -e "${RED}[Error] Do not run this script as root/sudo.${NC}"
+    exit 1
+fi
+
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/fastfetch"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/fastfetch"
+BACKUP_DIR="$STATE_DIR/backups"
+
+# Sanity check: ensure CONFIG_DIR is valid before rm -rf
+if [[ -z "$CONFIG_DIR" || "$CONFIG_DIR" == "/" || ! "$CONFIG_DIR" =~ fastfetch$ ]]; then
+    echo -e "${RED}[Error] Invalid CONFIG_DIR: '$CONFIG_DIR'. Aborting for safety.${NC}"
+    exit 1
+fi
 
 echo -e "${YELLOW}==> Gold Fastfetch Uninstaller${NC}"
 echo -e "    This will remove the current configuration and restore the latest backup."
