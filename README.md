@@ -66,6 +66,15 @@ chmod +x install.sh
 | `disk_detect.sh` | `~/.config/fastfetch/` | Disk detection script |
 | `updates.sh` | `~/.config/fastfetch/` | Update checker (cached) |
 
+## Reset / Uninstall
+
+To remove the configuration and restore your previous backup:
+
+```bash
+chmod +x uninstall.sh
+./uninstall.sh
+```
+
 ## Backups
 
 Existing configs are backed up to:
@@ -77,7 +86,8 @@ Only the last 5 backups are kept.
 
 ## License
 
-Unlicense / Public Domain
+MIT
+
 
 ## Technical Details 🛠️
 
