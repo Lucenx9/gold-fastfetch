@@ -125,9 +125,11 @@ if [[ -d "$CONFIG_DIR" ]] && [[ -n "$(ls -A "$CONFIG_DIR" 2>/dev/null)" ]]; then
 fi
 
 # 4. Generate Helper Scripts
+SCRIPTS_DIR="$CONFIG_DIR/scripts"
+mkdir -p "$SCRIPTS_DIR"
 
 # --- gpu_detect.sh ---
-cat << 'EOF' > "$CONFIG_DIR/gpu_detect.sh"
+cat << 'EOF' > "$SCRIPTS_DIR/gpu_detect.sh"
 #!/usr/bin/env bash
 set -euo pipefail
 export LC_ALL=C
@@ -169,7 +171,7 @@ if ((${#out[@]} == 0)); then echo "N/A"; else (IFS=' | '; echo "${out[*]}"); fi
 EOF
 
 # --- updates.sh ---
-cat << 'EOF' > "$CONFIG_DIR/updates.sh"
+cat << 'EOF' > "$SCRIPTS_DIR/updates.sh"
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -245,7 +247,7 @@ fi
 EOF
 
 # --- disk_detect.sh ---
-cat << 'DISKEOF' > "$CONFIG_DIR/disk_detect.sh"
+cat << 'DISKEOF' > "$SCRIPTS_DIR/disk_detect.sh"
 #!/usr/bin/env bash
 set -euo pipefail
 export LC_ALL=C.UTF-8
@@ -348,7 +350,7 @@ if [[ $first -eq 1 ]]; then
 fi
 DISKEOF
 
-chmod +x "$CONFIG_DIR/"*.sh
+chmod +x "$SCRIPTS_DIR/"*.sh
 
 # 5. Generate Config
 echo -e "${YELLOW}==> Generating config.jsonc...${NC}"
@@ -394,7 +396,7 @@ cat << EOF > "$CONFIG_DIR/config.jsonc"
     { "type": "os", "key": "│ ${I_OS}OS", "keyColor": "cyan" },
     { "type": "kernel", "key": "│ ${I_KER}Kernel", "keyColor": "cyan" },
     { "type": "uptime", "key": "│ ${I_UP}Uptime", "keyColor": "cyan" },
-    { "type": "command", "key": "│ ${I_UPD}Updates", "keyColor": "yellow", "text": "bash \"$CONFIG_DIR/updates.sh\"" },
+    { "type": "command", "key": "│ ${I_UPD}Updates", "keyColor": "yellow", "text": "bash \"$SCRIPTS_DIR/updates.sh\"" },
     { "type": "packages", "key": "│ ${I_PKG}Packages", "keyColor": "cyan", "format": "{all} (pacman {pacman}, flatpak {flatpak-all})" },
     { "type": "command", "key": "│ ${I_AUR}AUR", "keyColor": "cyan", "text": "pacman -Qmq 2>/dev/null | wc -l" },
     { "type": "shell", "key": "│ ${I_SH}Shell", "keyColor": "cyan" },
@@ -407,11 +409,11 @@ cat << EOF > "$CONFIG_DIR/config.jsonc"
     { "type": "custom", "format": "├──────────────────────────────────────────────────────────", "outputColor": "green" },
 
     { "type": "cpu", "key": "│ ${I_CPU}CPU", "keyColor": "green", "format": "{name} ({cores-physical}C/{cores-logical}T) @ {freq-max}" },
-    { "type": "command", "key": "│ ${I_GPU}GPU", "keyColor": "green", "text": "bash \"$CONFIG_DIR/gpu_detect.sh\"" },
+    { "type": "command", "key": "│ ${I_GPU}GPU", "keyColor": "green", "text": "bash \"$SCRIPTS_DIR/gpu_detect.sh\"" },
     { "type": "memory", "key": "│ ${I_RAM}RAM", "keyColor": "green", "format": "{used} / {total} ({percentage})" },
     { "type": "swap", "key": "│ ${I_SWAP}Swap", "keyColor": "green", "format": "{used} / {total} ({percentage})" },
     { "type": "battery", "key": "│ ${I_BAT}Battery", "keyColor": "green", "format": "{capacity}% ({status})" },
-    { "type": "command", "key": "│ ${I_DISK}Disks", "keyColor": "green", "text": "bash \"$CONFIG_DIR/disk_detect.sh\"" },
+    { "type": "command", "key": "│ ${I_DISK}Disks", "keyColor": "green", "text": "bash \"$SCRIPTS_DIR/disk_detect.sh\"" },
 
     { "type": "custom", "format": "├──────────────────────────────────────────────────────────", "outputColor": "blue" },
 

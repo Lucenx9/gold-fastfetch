@@ -66,9 +66,9 @@ chmod +x install.sh
 | File | Location | Description |
 |------|----------|-------------|
 | `config.jsonc` | `~/.config/fastfetch/` | Main config |
-| `gpu_detect.sh` | `~/.config/fastfetch/` | GPU detection script |
-| `disk_detect.sh` | `~/.config/fastfetch/` | Disk detection script |
-| `updates.sh` | `~/.config/fastfetch/` | Update checker (cached) |
+| `gpu_detect.sh` | `~/.config/fastfetch/scripts/` | GPU detection script |
+| `disk_detect.sh` | `~/.config/fastfetch/scripts/` | Disk detection script |
+| `updates.sh` | `~/.config/fastfetch/scripts/` | Update checker (cached) |
 
 ## Reset / Uninstall
 

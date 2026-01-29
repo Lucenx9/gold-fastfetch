@@ -24,5 +24,5 @@ jobs:
       - name: Verify Config Generation
         run: |
           if [ ! -f /home/tester/.config/fastfetch/config.jsonc ]; then echo "Config missing"; exit 1; fi
-          if [ ! -f /home/tester/.config/fastfetch/updates.sh ]; then echo "Updates script missing"; exit 1; fi
-          if [ ! -f /home/tester/.config/fastfetch/disk_detect.sh ]; then echo "Disk script missing"; exit 1; fi
+          if [ ! -f /home/tester/.config/fastfetch/scripts/updates.sh ]; then echo "Updates script missing"; exit 1; fi
+          if [ ! -f /home/tester/.config/fastfetch/scripts/disk_detect.sh ]; then echo "Disk script missing"; exit 1; fi
