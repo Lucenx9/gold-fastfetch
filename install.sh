@@ -335,7 +335,7 @@ while IFS= read -r line; do
     bar=$(make_bar "$percent")
 
     if [[ $first -eq 0 ]]; then
-        if (( (disk_num - 1) % 3 == 0 )); then printf "\n                   "; else printf " │ "; fi
+        if (( (disk_num - 1) % 3 == 0 )); then printf "\n                        ${GREEN}│${RESET}                 "; else printf " │ "; fi
     fi
     first=0
     printf "%s %s/%sG (%s) %s" "$label" "$used_gib" "$size_gib" "$percent" "$bar"
