@@ -74,7 +74,7 @@
         "Valid JSONC syntax (comments allowed but placeholders are in string values)"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": "The template is processed by sed at install time to replace {{PLACEHOLDER}} with actual values."
     },
     {
@@ -91,7 +91,7 @@
         "Valid JSONC syntax, works with fastfetch --config <path>"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "notes": "Minimal variant should feel clean and fast — no custom script overhead."
     },
     {
@@ -113,7 +113,7 @@
         "shellcheck passes on install.sh"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "This is the largest story but it's a direct refactor — logic stays the same, just reorganized. The heredoc removal + template copy is mechanical."
     },
     {

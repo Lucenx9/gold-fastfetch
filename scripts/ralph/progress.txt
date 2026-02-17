@@ -9,6 +9,8 @@ Started: mar 17 feb 2026, 01:29:39, CET
 - Run `shellcheck` on all `.sh` files before committing
 - Git repo local config: user=Lucenx9, email=Lucenx9@users.noreply.github.com
 - Use `${var,,}` for lowercase and `${var^}` for capitalize-first instead of piping to `sed`
+- Config templates use `{{PLACEHOLDER}}` syntax (double curly braces) — replaced by `sed` at install time
+- Config templates are valid JSON — can be validated with `python3 -c "import json; json.load(open('file'))"`
 
 ---
 
@@ -48,4 +50,49 @@ Started: mar 17 feb 2026, 01:29:39, CET
   - Had to fix two shellcheck warnings: SC2001 (use `${var^}` instead of `sed 's/^./\U&/'`) and SC2059 (don't use variables in printf format string)
   - Same extraction pattern as US-002/US-003: copy heredoc body, add shebang + set flags, fix shellcheck warnings, verify clean
   - `${fslabel,,}` lowercases, `${lower^}` capitalizes first letter — pure bash, no sed needed
+---
+
+## 2026-02-17 - US-005
+- What was implemented: Created gold config template at templates/config-gold.jsonc with {{PLACEHOLDER}} markers
+- Files changed: templates/config-gold.jsonc (new file)
+- Template has 32 icon placeholders ({{I_USER}}, {{I_HOST}}, etc.) and 3 {{SCRIPTS_DIR}} references
+- All modules preserved in original order: User/Host/Time, System, Hardware, Display/Audio, Media, Palette
+- Logo padding (top:1, left:2, right:3) and box-drawing section separators included
+- **Learnings for future iterations:**
+  - Config templates are valid JSON (no comments used), so python3 json.load() works for validation
+  - Use `{{PLACEHOLDER}}` style (double curly braces) — these get replaced by sed at install time
+  - The gold template has 3 command modules that reference {{SCRIPTS_DIR}}: updates.sh, gpu_detect.sh, disk_detect.sh
+  - The `$schema` key uses a literal `$` (not a placeholder) — be careful not to confuse it with shell vars
+---
+
+## 2026-02-17 - US-006
+- What was implemented: Created minimal config template at templates/config-minimal.jsonc
+- Files changed: templates/config-minimal.jsonc (new file)
+- Modules included: OS, Kernel, Uptime, Shell, CPU, RAM, Disk (built-in fastfetch module), Color Palette
+- Uses simple separator (" → "), single cyan accent color, no box-drawing borders
+- 8 icon placeholders: {{I_OS}}, {{I_KER}}, {{I_UP}}, {{I_SH}}, {{I_CPU}}, {{I_RAM}}, {{I_DISK}}, {{I_PAL}}
+- No {{SCRIPTS_DIR}} references — minimal variant doesn't use custom scripts
+- **Learnings for future iterations:**
+  - Minimal config uses fastfetch's built-in `disk` module type (not the custom disk_detect.sh script)
+  - The `cd` command in zsh is intercepted by zoxide on this machine — use `git -C <path>` instead of `cd <path> && git`
+  - Keep minimal template intentionally simple — resist adding extra modules
+---
+
+## 2026-02-17 - US-007
+- What was implemented: Refactored install.sh to use templates and lib.sh instead of inline heredocs
+- Files changed: install.sh (complete rewrite)
+- Key changes:
+  - Sources scripts/lib.sh for logging (log_info/log_warn/log_error), check_not_root(), check_arch(), check_command()
+  - Added --variant gold|minimal flag (default: gold), validates against known values
+  - Template processing: reads templates/config-<variant>.jsonc and replaces {{PLACEHOLDER}} via sed array
+  - Gold variant: copies templates/scripts/*.sh to $CONFIG_DIR/scripts/ and chmod +x
+  - Minimal variant: skips helper script installation entirely
+  - All inline heredocs for config and helper scripts removed
+  - Backup logic unchanged (same rotation, same paths, same 5-backup limit)
+- **Learnings for future iterations:**
+  - Use `sed` with pipe `|` as delimiter (not `/`) to avoid conflicts with path separators in {{SCRIPTS_DIR}}
+  - Build sed args as a bash array (SED_ARGS) for clean multi-placeholder replacement
+  - shellcheck SC1091 (info) about sourced files is expected when running shellcheck outside the repo root — use `-S warning` to filter
+  - The `# shellcheck source=scripts/lib.sh` directive helps shellcheck follow sourced files when using `-x`
+  - Icon variables contain multibyte Nerd Font glyphs — sed handles them fine with `|` delimiter
 ---
