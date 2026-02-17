@@ -96,3 +96,20 @@ Started: mar 17 feb 2026, 01:29:39, CET
   - The `# shellcheck source=scripts/lib.sh` directive helps shellcheck follow sourced files when using `-x`
   - Icon variables contain multibyte Nerd Font glyphs — sed handles them fine with `|` delimiter
 ---
+
+## 2026-02-17 - US-008
+- What was implemented: Updated uninstall.sh to source scripts/lib.sh instead of defining its own colors and checks
+- Files changed: uninstall.sh (refactored)
+- Key changes:
+  - Sources scripts/lib.sh via `source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/scripts/lib.sh"`
+  - Removed duplicate color variables (GREEN, YELLOW, RED, NC)
+  - Replaced inline root check with `check_not_root()` call
+  - Replaced inline interactive check with `require_interactive()` call
+  - Replaced `echo -e` calls with `log_info()`, `log_warn()`, `log_error()`, and `printf`
+  - Used `die()` for the CONFIG_DIR sanity check error
+  - Behavior unchanged: prompts user, removes config, restores latest backup
+- **Learnings for future iterations:**
+  - The `require_interactive()` check was moved before the prompt (cleaner flow — fail early)
+  - Use `# shellcheck source=scripts/lib.sh` directive so shellcheck can follow the source with `-x`
+  - Plain `printf` is appropriate for non-colored messages (no need for log_* wrappers)
+---
