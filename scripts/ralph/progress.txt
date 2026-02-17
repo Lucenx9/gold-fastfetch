@@ -1,0 +1,31 @@
+# Ralph Progress Log
+Started: mar 17 feb 2026, 01:29:39, CET
+---
+
+## Codebase Patterns
+- scripts/lib.sh is the shared library — all scripts should `source` it for logging and checks
+- Use `printf` instead of `echo -e` for colored output
+- All shell scripts need `#!/usr/bin/env bash` and `set -euo pipefail`
+- Run `shellcheck` on all `.sh` files before committing
+- Git repo local config: user=Lucenx9, email=Lucenx9@users.noreply.github.com
+
+---
+
+## 2026-02-17 - US-001
+- What was implemented: Verified existing scripts/lib.sh meets all acceptance criteria
+- Files changed: scripts/lib.sh (already existed, staged and committed)
+- Functions present: log_info(), log_warn(), log_error(), die(), check_not_root(), check_arch(), check_command(), require_interactive()
+- **Learnings for future iterations:**
+  - lib.sh was already written and staged before Ralph started — just needed verification and commit
+  - shellcheck passes clean with SC2034 disable for SCRIPT_DIR (unused in lib.sh itself but used by sourcing scripts)
+  - Git identity needed manual setup (not configured globally on this machine)
+---
+
+## 2026-02-17 - US-002
+- What was implemented: Extracted GPU detection script from install.sh heredoc (lines 143-182) into templates/scripts/gpu_detect.sh
+- Files changed: templates/scripts/gpu_detect.sh (new file)
+- **Learnings for future iterations:**
+  - The GPU detect script is self-contained — no placeholders needed, uses runtime env vars and commands
+  - shellcheck passes clean on the extracted script with no warnings
+  - The templates/scripts/ directory is new — created for this and future script extractions (US-003, US-004)
+---

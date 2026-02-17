@@ -1,0 +1,233 @@
+{
+  "project": "gold-fastfetch",
+  "branchName": "ralph/refactor-v2",
+  "description": "Gold Fastfetch v2 — Two config variants (gold/minimal), refactored installer with external templates, shared lib.sh, bats tests, and GitHub Actions CI",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create shared helper library (scripts/lib.sh)",
+      "description": "As a developer, I need common functions extracted into a shared library so that install.sh and uninstall.sh are DRY and consistent.",
+      "acceptanceCriteria": [
+        "scripts/lib.sh exists with functions: log_info(), log_warn(), log_error(), die(), check_not_root(), check_arch(), check_command(), require_interactive()",
+        "Color variables (GREEN, YELLOW, RED, NC) defined once in lib.sh",
+        "Logging functions use printf instead of echo -e",
+        "SCRIPT_DIR resolved via: SCRIPT_DIR=\"$(cd \"$(dirname \"${BASH_SOURCE[0]}\")\" && pwd)\"",
+        "File has #!/usr/bin/env bash and set -euo pipefail",
+        "shellcheck passes on scripts/lib.sh"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "This is a foundational dependency — all other scripts source this."
+    },
+    {
+      "id": "US-002",
+      "title": "Extract GPU detect script to templates/scripts/gpu_detect.sh",
+      "description": "As a developer, I want the GPU detection script as a standalone template file instead of an inline heredoc in install.sh.",
+      "acceptanceCriteria": [
+        "templates/scripts/gpu_detect.sh exists with exact current logic from install.sh lines 143-182",
+        "Has #!/usr/bin/env bash and set -euo pipefail",
+        "No {{PLACEHOLDER}} needed (uses runtime env vars)",
+        "shellcheck passes on the file"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Extract updates script to templates/scripts/updates.sh",
+      "description": "As a developer, I want the update checker script as a standalone template file.",
+      "acceptanceCriteria": [
+        "templates/scripts/updates.sh exists with exact current logic from install.sh lines 185-258",
+        "Has #!/usr/bin/env bash and set -euo pipefail",
+        "No {{PLACEHOLDER}} needed (uses $XDG_CACHE_HOME at runtime)",
+        "shellcheck passes on the file"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Extract disk detect script to templates/scripts/disk_detect.sh",
+      "description": "As a developer, I want the disk detection script as a standalone template file.",
+      "acceptanceCriteria": [
+        "templates/scripts/disk_detect.sh exists with exact current logic from install.sh lines 261-381",
+        "Has #!/usr/bin/env bash and set -euo pipefail",
+        "No {{PLACEHOLDER}} needed",
+        "shellcheck passes on the file"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Create gold config template (templates/config-gold.jsonc)",
+      "description": "As a developer, I want the gold fastfetch config as a template with {{PLACEHOLDER}} markers for icon keys and script paths.",
+      "acceptanceCriteria": [
+        "templates/config-gold.jsonc exists with all current modules",
+        "Icon keys use {{I_USER}}, {{I_HOST}}, etc. placeholders",
+        "Script paths use {{SCRIPTS_DIR}} placeholder",
+        "Visual refinements: improved logo padding (top:1, left:2, right:3), consistent section separators using box-drawing chars",
+        "Module ordering unchanged: User/Host/Time, System, Hardware, Display/Audio, Media, Palette",
+        "Valid JSONC syntax (comments allowed but placeholders are in string values)"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": "The template is processed by sed at install time to replace {{PLACEHOLDER}} with actual values."
+    },
+    {
+      "id": "US-006",
+      "title": "Create minimal config template (templates/config-minimal.jsonc)",
+      "description": "As a user, I want a lightweight fastfetch config that shows only essential system info without decorative borders or custom scripts.",
+      "acceptanceCriteria": [
+        "templates/config-minimal.jsonc exists with modules: OS, Kernel, Uptime, Shell, CPU, RAM, Disk (built-in fastfetch module, not custom script), Color Palette",
+        "No box-drawing borders or section separators",
+        "Uses simple separator style (e.g. separator: ' -> ' or ' : ')",
+        "Single accent color scheme (cyan keys, no colored section borders)",
+        "Icon placeholders work: {{I_OS}}, {{I_KER}}, {{I_UP}}, {{I_SH}}, {{I_CPU}}, {{I_RAM}}, {{I_DISK}}, {{I_PAL}}",
+        "No {{SCRIPTS_DIR}} references (no custom scripts needed)",
+        "Valid JSONC syntax, works with fastfetch --config <path>"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": "Minimal variant should feel clean and fast — no custom script overhead."
+    },
+    {
+      "id": "US-007",
+      "title": "Refactor install.sh to use templates and lib.sh",
+      "description": "As a developer, I want install.sh to be a clean orchestrator that sources lib.sh, copies templates, and substitutes placeholders.",
+      "acceptanceCriteria": [
+        "install.sh sources scripts/lib.sh for logging, check_not_root(), check_arch(), check_command()",
+        "New --variant gold|minimal flag added (default: gold)",
+        "Existing --icons / --no-icons flags still work",
+        "Template processing: reads templates/config-<variant>.jsonc, replaces {{PLACEHOLDER}} with actual values via sed",
+        "Gold variant: copies templates/scripts/*.sh to $CONFIG_DIR/scripts/ and chmod +x",
+        "Minimal variant: skips helper script installation entirely",
+        "All inline heredocs for config and helper scripts removed",
+        "Unknown --variant value prints error and exits 1",
+        "Backup logic unchanged (same rotation, same paths, same 5-backup limit)",
+        "Idempotent: re-running creates backup then overwrites",
+        "All paths properly quoted, no word-splitting vulnerabilities",
+        "shellcheck passes on install.sh"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": "This is the largest story but it's a direct refactor — logic stays the same, just reorganized. The heredoc removal + template copy is mechanical."
+    },
+    {
+      "id": "US-008",
+      "title": "Update uninstall.sh to use lib.sh",
+      "description": "As a developer, I want uninstall.sh to source the shared library for consistency.",
+      "acceptanceCriteria": [
+        "uninstall.sh sources scripts/lib.sh for colors, logging, check_not_root(), require_interactive()",
+        "Duplicate color variable definitions removed",
+        "Duplicate root check code replaced with check_not_root() call",
+        "Behavior unchanged: prompts user, removes config, restores latest backup",
+        "shellcheck passes on uninstall.sh"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Add .editorconfig for consistent formatting",
+      "description": "As a contributor, I want consistent formatting enforced by .editorconfig.",
+      "acceptanceCriteria": [
+        ".editorconfig exists at repo root",
+        "Shell scripts: indent_style=space, indent_size=4, end_of_line=lf, insert_final_newline=true",
+        "JSONC/JSON: indent_style=space, indent_size=2",
+        "Markdown: trim_trailing_whitespace=false",
+        "YAML: indent_style=space, indent_size=2"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Add bats unit tests for disk_detect pure functions",
+      "description": "As a developer, I want unit tests for the deterministic functions in disk_detect.sh so refactoring doesn't break parsing.",
+      "acceptanceCriteria": [
+        "tests/disk_detect.bats exists",
+        "Tests for to_gib(): converts bytes, KiB, MiB, GiB, TiB values correctly",
+        "Tests for make_bar(): produces correct bar width and color for 0%, 50%, 70%, 90%, 100%",
+        "Tests for get_label(): returns 'System' for /, 'Home' for /home, filesystem label when present",
+        "Tests for parse_pairs(): parses findmnt -P output correctly, handles empty fields",
+        "Functions sourced directly from templates/scripts/disk_detect.sh (no subprocess)",
+        "All tests pass with: bats tests/disk_detect.bats"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": "Need to source only the function definitions, not the main loop. May need to refactor disk_detect.sh to guard main logic behind [[ $0 == ... ]] check."
+    },
+    {
+      "id": "US-011",
+      "title": "Add bats unit tests for lib.sh functions",
+      "description": "As a developer, I want unit tests for the shared library functions.",
+      "acceptanceCriteria": [
+        "tests/lib.bats exists",
+        "Tests for log_info(): outputs green-colored message to stdout",
+        "Tests for log_warn(): outputs yellow-colored message to stdout",
+        "Tests for log_error(): outputs red-colored message to stdout",
+        "Tests for die(): outputs error and exits with code 1",
+        "Tests for check_not_root(): passes when EUID != 0, fails when EUID == 0 (mocked)",
+        "All tests pass with: bats tests/lib.bats"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Add snapshot tests for config generation",
+      "description": "As a developer, I want snapshot tests that verify generated configs match expected output.",
+      "acceptanceCriteria": [
+        "tests/snapshots/ directory with 4 files: config-gold-icons.jsonc, config-gold-noicons.jsonc, config-minimal-icons.jsonc, config-minimal-noicons.jsonc",
+        "tests/install.bats runs installer in a temp dir with mocked environment, compares output to snapshots",
+        "Snapshot normalization: absolute paths replaced with {{SCRIPTS_DIR}} before diff",
+        "tests/update-snapshots.sh script regenerates all 4 snapshots",
+        "All snapshot tests pass with: bats tests/install.bats"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": "Snapshots must be committed to the repo. When templates change, run update-snapshots.sh and commit new snapshots."
+    },
+    {
+      "id": "US-013",
+      "title": "Create GitHub Actions CI workflow",
+      "description": "As a maintainer, I want CI that runs shellcheck and bats on every push/PR.",
+      "acceptanceCriteria": [
+        ".github/workflows/ci.yml exists (replaces old test.yml)",
+        "Old .github/workflows/test.yml is deleted",
+        "Job 'lint': runs shellcheck on install.sh, uninstall.sh, scripts/lib.sh, templates/scripts/*.sh",
+        "Job 'test': installs bats-core, runs bats tests/",
+        "Job 'smoke-arch': archlinux:latest container, runs install.sh --no-icons --variant gold, verifies config.jsonc and scripts exist; then runs install.sh --no-icons --variant minimal, verifies config.jsonc exists",
+        "Triggers on push and pull_request",
+        "All jobs use ubuntu-latest (smoke uses archlinux container)",
+        "Workflow completes in under 5 minutes"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Update README for v2 (variants + dev docs)",
+      "description": "As a user, I want the README to document the variant system and how to run tests.",
+      "acceptanceCriteria": [
+        "Documents --variant gold (default) and --variant minimal with short description of each",
+        "Explains why gold is default (full-featured, showcases all detection capabilities)",
+        "Updated 'What Gets Installed' table reflects templates-based installation",
+        "New 'Development' section: how to run tests (bats tests/), dependencies (bats, shellcheck), how to update snapshots",
+        "Existing content preserved (features, compatibility, backups, technical details)",
+        "No broken markdown links or formatting"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
