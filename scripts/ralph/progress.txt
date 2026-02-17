@@ -14,6 +14,7 @@ Started: mar 17 feb 2026, 01:29:39, CET
 - Use `[[ "${BASH_SOURCE[0]}" == "$0" ]]` guard to make scripts sourceable for testing without running main logic
 - bats installed at `~/.local/bin/bats` — add to PATH before running: `export PATH="$HOME/.local/bin:$PATH"`
 - `EUID` is readonly in bash — to test root-check logic, replicate the condition inline in a wrapper function
+- shellcheck exits 1 on SC1091 (info level) — use `-S warning` to only fail on actual warnings/errors
 
 ---
 
@@ -152,4 +153,50 @@ Started: mar 17 feb 2026, 01:29:39, CET
   - To test root-check logic, replicate the condition inline in a test wrapper function rather than trying to mock EUID
   - `run` in bats captures both stdout and exit status, which is ideal for testing die() behavior
   - lib.sh uses `set -euo pipefail` — sourcing it in setup() means tests inherit strict mode
+---
+
+## 2026-02-17 - US-012
+- What was implemented: Added snapshot tests for config generation (4 variants: gold/minimal × icons/noicons)
+- Files changed: tests/install.bats (new, 4 tests), tests/snapshots/ (4 snapshot files), tests/update-snapshots.sh (new)
+- Key changes:
+  - tests/install.bats runs install.sh in isolated temp dir with mocked fastfetch/lspci/checkupdates and patched check_arch
+  - Snapshot normalization: absolute script paths replaced with {{SCRIPTS_DIR}} before diff comparison
+  - tests/update-snapshots.sh regenerates all 4 snapshots by replicating install.sh's sed template processing
+  - All 4 snapshot tests pass alongside existing 39 tests (43 total)
+- **Learnings for future iterations:**
+  - lib.sh overwrites SCRIPT_DIR when sourced — tests need a shim that restores it to repo root after sourcing
+  - Use sed to patch install.sh's source line to use a test shim (avoids modifying production code for testability)
+  - For snapshot normalization, `sed "s|${absolute_path}|{{PLACEHOLDER}}|g"` works cleanly with pipe delimiter
+  - Mock commands in a temp bin dir prepended to PATH — clean and isolated
+---
+
+## 2026-02-17 - US-013
+- What was implemented: Created GitHub Actions CI workflow with lint, test, and smoke-arch jobs; deleted old test.yml
+- Files changed: .github/workflows/ci.yml (new), .github/workflows/test.yml (deleted)
+- Key changes:
+  - Job 'lint': installs shellcheck, runs on install.sh, uninstall.sh, scripts/lib.sh, templates/scripts/*.sh with `-S warning`
+  - Job 'test': installs bats-core, runs `bats tests/`
+  - Job 'smoke-arch': archlinux:latest container, creates non-root user, runs gold variant (verifies config + scripts), then minimal variant (verifies config)
+  - Triggers on push and pull_request, all jobs use ubuntu-latest
+- **Learnings for future iterations:**
+  - shellcheck exits 1 even on SC1091 (info level) — use `-S warning` to only fail on warnings and errors
+  - The old test.yml was tracked by git — need `git add .github/workflows/test.yml` to stage the deletion
+  - Smoke tests use `su tester -c` to run as non-root inside the archlinux container
+  - Minimal smoke test uses separate XDG_CONFIG_HOME to avoid conflict with gold variant's output
+---
+
+## 2026-02-17 - US-014
+- What was implemented: Verified README.md already meets all v2 acceptance criteria (updated incrementally during prior stories)
+- Files changed: README.md (no changes needed — already complete)
+- Content verified:
+  - `--variant gold` and `--variant minimal` documented in Options section with descriptions
+  - Explains why gold is default ("full detection stack, showcases all detection capabilities")
+  - What Gets Installed table reflects templates-based installation with source column
+  - Development section includes dependencies (shellcheck, bats), test commands, and snapshot update instructions
+  - All existing content preserved (features, compatibility, backups, technical details)
+  - No broken markdown links or formatting
+- **Learnings for future iterations:**
+  - README was updated incrementally during US-007 and US-012 — by the time the README story arrives, it may already be complete
+  - Always verify quality checks pass even for documentation-only stories
+  - Use `bash -c` wrapper to avoid zoxide's `cd` interception in zsh shells
 ---

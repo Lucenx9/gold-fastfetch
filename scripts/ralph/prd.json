@@ -192,7 +192,7 @@
         "All snapshot tests pass with: bats tests/install.bats"
       ],
       "priority": 12,
-      "passes": false,
+      "passes": true,
       "notes": "Snapshots must be committed to the repo. When templates change, run update-snapshots.sh and commit new snapshots."
     },
     {
@@ -210,8 +210,8 @@
         "Workflow completes in under 5 minutes"
       ],
       "priority": 13,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Used -S warning for shellcheck to avoid false-positive exit code from SC1091 info messages."
     },
     {
       "id": "US-014",
@@ -226,7 +226,7 @@
         "No broken markdown links or formatting"
       ],
       "priority": 14,
-      "passes": false,
+      "passes": true,
       "notes": ""
     }
   ]
