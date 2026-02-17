@@ -1,0 +1,64 @@
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "logo": { "type": "small", "padding": { "top": 1, "left": 2, "right": 3 } },
+  "display": {
+    "separator": " ", "showErrors": false, "disableLinewrap": true,
+    "color": { "keys": "cyan", "title": "light_magenta" },
+    "brightColor": true, "key": { "width": 18 },
+    "size": { "ndigits": 1, "binaryPrefix": "iec" },
+    "temp": { "unit": "C", "ndigits": 0 },
+    "duration": { "abbreviation": true },
+    "bar": { "width": 10, "char": { "elapsed": "━", "total": "━" }, "border": { "left": "", "right": "" } },
+    "percent": { "type": 3, "ndigits": 0 }
+  },
+  "modules": [
+    { "type": "custom", "format": "╭──────────────────────────────────────────────────────────", "outputColor": "cyan" },
+
+    { "type": "title", "key": "│ {{I_USER}}User", "keyColor": "light_magenta", "format": "{user-name}" },
+    { "type": "title", "key": "│ {{I_HOST}}Host", "keyColor": "light_magenta", "format": "{host-name}" },
+    { "type": "datetime", "key": "│ {{I_TIME}}Time", "keyColor": "light_magenta", "format": "{year}-{month}-{day-in-month} {hour}:{minute}" },
+
+    { "type": "custom", "format": "├──────────────────────────────────────────────────────────", "outputColor": "cyan" },
+
+    { "type": "os", "key": "│ {{I_OS}}OS", "keyColor": "cyan" },
+    { "type": "kernel", "key": "│ {{I_KER}}Kernel", "keyColor": "cyan" },
+    { "type": "uptime", "key": "│ {{I_UP}}Uptime", "keyColor": "cyan" },
+    { "type": "command", "key": "│ {{I_UPD}}Updates", "keyColor": "yellow", "text": "bash \"{{SCRIPTS_DIR}}/updates.sh\"" },
+    { "type": "packages", "key": "│ {{I_PKG}}Packages", "keyColor": "cyan", "format": "{all} (pacman {pacman}, flatpak {flatpak-all})" },
+    { "type": "command", "key": "│ {{I_AUR}}Foreign", "keyColor": "cyan", "text": "pacman -Qmq 2>/dev/null | wc -l" },
+    { "type": "shell", "key": "│ {{I_SH}}Shell", "keyColor": "cyan" },
+    { "type": "locale", "key": "│ {{I_LOC}}Locale", "keyColor": "cyan" },
+    { "type": "de", "key": "│ {{I_DE}}Desktop", "keyColor": "cyan" },
+    { "type": "wm", "key": "│ {{I_WM}}WM", "keyColor": "cyan" },
+    { "type": "terminal", "key": "│ {{I_TERM}}Terminal", "keyColor": "cyan" },
+    { "type": "terminalfont", "key": "│ {{I_FONT}}Term Font", "keyColor": "cyan" },
+
+    { "type": "custom", "format": "├──────────────────────────────────────────────────────────", "outputColor": "green" },
+
+    { "type": "cpu", "key": "│ {{I_CPU}}CPU", "keyColor": "green", "format": "{name} ({cores-physical}C/{cores-logical}T) @ {freq-max}" },
+    { "type": "command", "key": "│ {{I_GPU}}GPU", "keyColor": "green", "text": "bash \"{{SCRIPTS_DIR}}/gpu_detect.sh\"" },
+    { "type": "memory", "key": "│ {{I_RAM}}RAM", "keyColor": "green", "format": "{used} / {total} ({percentage})" },
+    { "type": "swap", "key": "│ {{I_SWAP}}Swap", "keyColor": "green", "format": "{used} / {total} ({percentage})" },
+    { "type": "battery", "key": "│ {{I_BAT}}Battery", "keyColor": "green", "format": "{capacity}% ({status})" },
+    { "type": "command", "key": "│ {{I_DISK}}Disks", "keyColor": "green", "text": "bash \"{{SCRIPTS_DIR}}/disk_detect.sh\"" },
+
+    { "type": "custom", "format": "├──────────────────────────────────────────────────────────", "outputColor": "blue" },
+
+    { "type": "display", "key": "│ {{I_DISP}}Display", "keyColor": "blue", "format": "{name} {width}x{height} @ {refresh-rate}Hz" },
+    { "type": "sound", "key": "│ {{I_AUD}}Audio", "keyColor": "blue" },
+    { "type": "theme", "key": "│ {{I_THM}}Theme", "keyColor": "blue" },
+    { "type": "icons", "key": "│ {{I_ICO}}Icons", "keyColor": "blue" },
+    { "type": "font", "key": "│ {{I_FONT}}Sys Fonts", "keyColor": "blue" },
+    { "type": "cursor", "key": "│ {{I_CUR}}Cursor", "keyColor": "blue" },
+    { "type": "gamepad", "key": "│ {{I_PAD}}Gamepad", "keyColor": "blue" },
+    { "type": "localip", "key": "│ {{I_IP}}Local IP", "keyColor": "blue", "compact": true, "showIpv4": true, "showIpv6": false, "defaultRouteOnly": true },
+
+    { "type": "custom", "format": "├──────────────────────────────────────────────────────────", "outputColor": "yellow" },
+    { "type": "player", "key": "│ {{I_PLAY}}Player", "keyColor": "yellow" },
+    { "type": "media", "key": "│ {{I_MEDIA}}Playing", "keyColor": "yellow" },
+
+    { "type": "custom", "format": "├──────────────────────────────────────────────────────────", "outputColor": "magenta" },
+    { "type": "colors", "key": "│ {{I_PAL}}Palette", "keyColor": "magenta", "symbol": "circle" },
+    { "type": "custom", "format": "╰──────────────────────────────────────────────────────────", "outputColor": "magenta" }
+  ]
+}
