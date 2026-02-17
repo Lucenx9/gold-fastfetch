@@ -57,9 +57,6 @@ to_gib() {
     esac
 }
 
-declare -A seen_sizes
-first=1; disk_num=1
-
 parse_pairs() {
     local line="$1" key val
     while [[ $line =~ ^([A-Z0-9.%_]+)=\"([^\"]*)\"[[:space:]]*(.*)$ ]]; do
@@ -76,6 +73,12 @@ parse_pairs() {
         esac
     done
 }
+
+# Guard: only run main logic when executed directly (not sourced)
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+
+declare -A seen_sizes
+first=1; disk_num=1
 
 while IFS= read -r line; do
     [[ -z "$line" ]] && continue
@@ -118,3 +121,5 @@ done < <(timeout 2s findmnt -n -b -P -o TARGET,FSTYPE,SIZE,USED,USE%,LABEL --rea
 if [[ $first -eq 1 ]]; then
     echo "N/A (no disks detected)"
 fi
+
+fi # end source guard
