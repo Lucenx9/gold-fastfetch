@@ -11,6 +11,9 @@ Started: mar 17 feb 2026, 01:29:39, CET
 - Use `${var,,}` for lowercase and `${var^}` for capitalize-first instead of piping to `sed`
 - Config templates use `{{PLACEHOLDER}}` syntax (double curly braces) — replaced by `sed` at install time
 - Config templates are valid JSON — can be validated with `python3 -c "import json; json.load(open('file'))"`
+- Use `[[ "${BASH_SOURCE[0]}" == "$0" ]]` guard to make scripts sourceable for testing without running main logic
+- bats installed at `~/.local/bin/bats` — add to PATH before running: `export PATH="$HOME/.local/bin:$PATH"`
+- `EUID` is readonly in bash — to test root-check logic, replicate the condition inline in a wrapper function
 
 ---
 
@@ -112,4 +115,41 @@ Started: mar 17 feb 2026, 01:29:39, CET
   - The `require_interactive()` check was moved before the prompt (cleaner flow — fail early)
   - Use `# shellcheck source=scripts/lib.sh` directive so shellcheck can follow the source with `-x`
   - Plain `printf` is appropriate for non-colored messages (no need for log_* wrappers)
+---
+
+## 2026-02-17 - US-009
+- What was implemented: Created .editorconfig at repo root for consistent formatting
+- Files changed: .editorconfig (new file)
+- Sections: shell scripts (space/4), JSON/JSONC (space/2), YAML (space/2), markdown (no trailing whitespace trim), all files (utf-8, lf, final newline, trim trailing whitespace)
+- **Learnings for future iterations:**
+  - .editorconfig is a simple declarative file — no quality checks needed beyond verifying the file exists
+  - Use `[*.{json,jsonc}]` brace expansion for matching multiple extensions in one section
+---
+
+## 2026-02-17 - US-010
+- What was implemented: Added bats unit tests for disk_detect.sh pure functions (to_gib, make_bar, get_label, parse_pairs)
+- Files changed: tests/disk_detect.bats (new, 24 tests), templates/scripts/disk_detect.sh (added source guard)
+- Key changes:
+  - Added `[[ "${BASH_SOURCE[0]}" == "$0" ]]` guard around main loop in disk_detect.sh so functions can be sourced without executing
+  - Tests for to_gib(): GiB, Gi, MiB, KiB, TiB, bytes, bare number, 0B, dash, empty string
+  - Tests for make_bar(): bar length, GREEN at 50%, YELLOW at 70%, RED at 90%/100%
+  - Tests for get_label(): System for /, Home for /home, filesystem label capitalization, dash ignored, /mnt/* basename
+  - Tests for parse_pairs(): full findmnt -P output, empty fields, missing LABEL
+- **Learnings for future iterations:**
+  - Use `[[ "${BASH_SOURCE[0]}" == "$0" ]]` guard to make scripts both executable and sourceable for testing
+  - bats setup() function runs before each test — use it to source the script under test
+  - Strip ANSI escape codes with `sed 's/\x1b\[[0-9;]*m//g'` for bar character counting
+  - Use `git -C <path>` instead of `cd <path>` to avoid zoxide interception in zsh
+  - bats is not installed system-wide — installed to ~/.local via git clone
+---
+
+## 2026-02-17 - US-011
+- What was implemented: Added bats unit tests for lib.sh functions (log_info, log_warn, log_error, die, check_not_root)
+- Files changed: tests/lib.bats (new, 15 tests)
+- Tests cover: colored output verification for all 3 log functions, die exit code and message, check_not_root passing for non-root and failing for root
+- **Learnings for future iterations:**
+  - `EUID` is a readonly bash variable — cannot be overridden even with `declare` or in subshells
+  - To test root-check logic, replicate the condition inline in a test wrapper function rather than trying to mock EUID
+  - `run` in bats captures both stdout and exit status, which is ideal for testing die() behavior
+  - lib.sh uses `set -euo pipefail` — sourcing it in setup() means tests inherit strict mode
 ---

@@ -143,7 +143,7 @@
         "YAML: indent_style=space, indent_size=2"
       ],
       "priority": 9,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {
@@ -160,8 +160,8 @@
         "All tests pass with: bats tests/disk_detect.bats"
       ],
       "priority": 10,
-      "passes": false,
-      "notes": "Need to source only the function definitions, not the main loop. May need to refactor disk_detect.sh to guard main logic behind [[ $0 == ... ]] check."
+      "passes": true,
+      "notes": "Refactored disk_detect.sh with source guard (BASH_SOURCE[0] == $0 check) so functions can be sourced without running main loop."
     },
     {
       "id": "US-011",
@@ -177,8 +177,8 @@
         "All tests pass with: bats tests/lib.bats"
       ],
       "priority": 11,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "EUID is readonly in bash — mock root check by replicating the condition inline rather than trying to override EUID."
     },
     {
       "id": "US-012",
