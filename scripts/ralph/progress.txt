@@ -29,3 +29,12 @@ Started: mar 17 feb 2026, 01:29:39, CET
   - shellcheck passes clean on the extracted script with no warnings
   - The templates/scripts/ directory is new — created for this and future script extractions (US-003, US-004)
 ---
+
+## 2026-02-17 - US-003
+- What was implemented: Extracted update checker script from install.sh heredoc (lines 185-258) into templates/scripts/updates.sh
+- Files changed: templates/scripts/updates.sh (new file)
+- **Learnings for future iterations:**
+  - The updates script is self-contained — no placeholders needed, uses $XDG_CACHE_HOME at runtime
+  - shellcheck passes clean on the extracted script with no warnings
+  - Same extraction pattern as US-002: copy heredoc body, add shebang + set flags, verify with shellcheck
+---
