@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install shellcheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+      - name: Run shellcheck
+        run: |
+          shellcheck -S warning install.sh uninstall.sh scripts/lib.sh templates/scripts/*.sh
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install bats
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bats
+      - name: Run bats tests
+        run: |
+          bats tests/
+
+  smoke-arch:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install runtime dependencies
+        run: |
+          pacman -Sy --noconfirm fastfetch pacman-contrib pciutils
+      - name: Create non-root test user
+        run: |
+          useradd -m -s /bin/bash tester
+          chown -R tester:tester "$PWD"
+      - name: Smoke test gold variant
+        run: |
+          su tester -c "bash install.sh --no-icons --variant gold"
+          test -f /home/tester/.config/fastfetch/config.jsonc
+          test -f /home/tester/.config/fastfetch/scripts/updates.sh
+          test -f /home/tester/.config/fastfetch/scripts/gpu_detect.sh
+          test -f /home/tester/.config/fastfetch/scripts/disk_detect.sh
+      - name: Smoke test minimal variant
+        run: |
+          su tester -c "XDG_CONFIG_HOME=/home/tester/.config-min XDG_STATE_HOME=/home/tester/.local/state-min bash install.sh --no-icons --variant minimal"
+          test -f /home/tester/.config-min/fastfetch/config.jsonc
