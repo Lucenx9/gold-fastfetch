@@ -8,6 +8,7 @@ Started: mar 17 feb 2026, 01:29:39, CET
 - All shell scripts need `#!/usr/bin/env bash` and `set -euo pipefail`
 - Run `shellcheck` on all `.sh` files before committing
 - Git repo local config: user=Lucenx9, email=Lucenx9@users.noreply.github.com
+- Use `${var,,}` for lowercase and `${var^}` for capitalize-first instead of piping to `sed`
 
 ---
 
@@ -37,4 +38,14 @@ Started: mar 17 feb 2026, 01:29:39, CET
   - The updates script is self-contained — no placeholders needed, uses $XDG_CACHE_HOME at runtime
   - shellcheck passes clean on the extracted script with no warnings
   - Same extraction pattern as US-002: copy heredoc body, add shebang + set flags, verify with shellcheck
+---
+
+## 2026-02-17 - US-004
+- What was implemented: Extracted disk detection script from install.sh heredoc (lines 261-381) into templates/scripts/disk_detect.sh
+- Files changed: templates/scripts/disk_detect.sh (new file)
+- **Learnings for future iterations:**
+  - The disk detect script is self-contained — no placeholders needed
+  - Had to fix two shellcheck warnings: SC2001 (use `${var^}` instead of `sed 's/^./\U&/'`) and SC2059 (don't use variables in printf format string)
+  - Same extraction pattern as US-002/US-003: copy heredoc body, add shebang + set flags, fix shellcheck warnings, verify clean
+  - `${fslabel,,}` lowercases, `${lower^}` capitalizes first letter — pure bash, no sed needed
 ---

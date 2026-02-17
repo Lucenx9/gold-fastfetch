@@ -58,7 +58,7 @@
         "shellcheck passes on the file"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {
