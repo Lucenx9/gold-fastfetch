@@ -10,9 +10,9 @@
 A feature-rich, self-contained Fastfetch configuration installer for Arch Linux.
 
 ### ⚡ Quick Install
-One-line command (safe & easy):
+One-line command (clones to `/tmp`, installs, cleans up):
 ```bash
-bash <(curl -sL https://raw.githubusercontent.com/Lucenx9/gold-fastfetch/main/install.sh)
+git clone --depth 1 https://github.com/Lucenx9/gold-fastfetch.git /tmp/gold-fastfetch && bash /tmp/gold-fastfetch/install.sh; rm -rf /tmp/gold-fastfetch
 ```
 
 ## Features
@@ -59,16 +59,20 @@ chmod +x install.sh
 ```bash
 ./install.sh --icons      # Force icons ON
 ./install.sh --no-icons   # Force icons OFF
+./install.sh --variant gold      # Full setup (default)
+./install.sh --variant minimal   # Lightweight setup
 ```
+
+`gold` is the default variant because it includes the full detection stack (GPU, updates, disk helper scripts) and best showcases the project.
 
 ## What Gets Installed
 
-| File | Location | Description |
-|------|----------|-------------|
-| `config.jsonc` | `~/.config/fastfetch/` | Main config |
-| `gpu_detect.sh` | `~/.config/fastfetch/scripts/` | GPU detection script |
-| `disk_detect.sh` | `~/.config/fastfetch/scripts/` | Disk detection script |
-| `updates.sh` | `~/.config/fastfetch/scripts/` | Update checker (cached) |
+| Item | Gold Variant | Minimal Variant | Source |
+|------|--------------|-----------------|--------|
+| `config.jsonc` | Installed | Installed | Generated from `templates/config-gold.jsonc` or `templates/config-minimal.jsonc` |
+| `scripts/gpu_detect.sh` | Installed | Not installed | Copied from `templates/scripts/gpu_detect.sh` |
+| `scripts/disk_detect.sh` | Installed | Not installed | Copied from `templates/scripts/disk_detect.sh` |
+| `scripts/updates.sh` | Installed | Not installed | Copied from `templates/scripts/updates.sh` |
 
 ## Reset / Uninstall
 
@@ -87,6 +91,39 @@ Existing configs are backed up to:
 ```
 
 Only the last 5 backups are kept.
+
+## Development
+
+Dependencies:
+
+- `shellcheck`
+- `bats`
+- `fastfetch` (for local smoke runs)
+
+Run lint:
+
+```bash
+shellcheck install.sh uninstall.sh scripts/lib.sh templates/scripts/*.sh
+```
+
+Run tests:
+
+```bash
+bats tests/
+```
+
+If `bats` is installed under `~/.local/bin`:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+bats tests/
+```
+
+Regenerate snapshots after template changes:
+
+```bash
+./tests/update-snapshots.sh
+```
 
 ## License
 
