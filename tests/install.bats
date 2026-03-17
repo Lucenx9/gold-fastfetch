@@ -39,7 +39,7 @@ run_installer() {
 #!/usr/bin/env bash
 source "$REPO_ROOT/scripts/lib.sh"
 check_arch() { return 0; }
-# Restore SCRIPT_DIR to repo root (lib.sh overwrites it to scripts/ dir)
+# test_install.sh is generated in a temp dir, so force repo-root SCRIPT_DIR for template lookups
 SCRIPT_DIR="$REPO_ROOT"
 SHIM
 

@@ -120,6 +120,8 @@ done < <(timeout 2s findmnt -n -b -P -o TARGET,FSTYPE,SIZE,USED,USE%,LABEL --rea
 # Handle case where no disks were found
 if [[ $first -eq 1 ]]; then
     echo "N/A (no disks detected)"
+else
+    printf '\n'
 fi
 
 fi # end source guard

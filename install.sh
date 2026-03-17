@@ -4,6 +4,14 @@
 
 set -euo pipefail
 
+# Guard against process substitution (e.g. bash <(curl ...))
+if [[ ! -f "${BASH_SOURCE[0]}" ]]; then
+    printf '\033[0;31m[Error] Cannot run via process substitution.\033[0m\n'
+    printf 'Clone the repository first:\n'
+    printf '  git clone https://github.com/Lucenx9/gold-fastfetch.git && cd gold-fastfetch && ./install.sh\n'
+    exit 1
+fi
+
 # Resolve project root and source shared library
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=scripts/lib.sh
@@ -64,7 +72,7 @@ if [[ "$FF_MAJOR" -lt 2 ]]; then
     log_warn "[Warn] Fastfetch version ($FF_RAW_VER) seems outdated. v2+ recommended."
 fi
 
-log_warn "==> Checking optional dependencies..."
+log_info "==> Checking optional dependencies..."
 MISSING_DEPS=0
 for cmd in lspci checkupdates; do
     if ! check_command "$cmd"; then
@@ -83,7 +91,7 @@ if [[ $MISSING_DEPS -eq 0 ]]; then log_info "  -> All dependencies found."; fi
 if [[ -n "$USE_ICONS_ARG" ]]; then
     USE_ICONS=$USE_ICONS_ARG
 elif [[ -t 0 ]]; then
-    log_warn "==> Checking font support..."
+    log_info "==> Checking font support..."
     printf "  Can you see this icon clearly? -> [   ]\n"
     if read -r -p "  Enable Nerd Font icons? (y/N) " response; then
         if [[ $response =~ ^[Yy]$ ]]; then
@@ -153,21 +161,23 @@ if [[ "$VARIANT" == "gold" ]]; then
 fi
 
 # 5. Generate Config from Template
-log_warn "==> Generating config.jsonc (variant: $VARIANT)..."
+log_info "==> Generating config.jsonc (variant: $VARIANT)..."
 
 # Icon keys based on Nerd Font availability
 if [[ $USE_ICONS -eq 1 ]]; then
     I_USER="󰟷 "; I_HOST="󰌢 "; I_TIME="󰃰 "; I_OS="󰏤 "; I_KER="󰌽 "; I_UP="󰥔 "
-    I_UPD="󰚰 "; I_PKG="󰏖 "; I_AUR="󰣇 "; I_SH="󰟤 "; I_LOC="󰗊 "; I_DE="󰍹 "; I_WM="󰖩 "
-    I_TERM=" "; I_FONT="󰛖 "; I_CPU="󰻠 "; I_GPU="󰢮 "; I_RAM="󰍛 "; I_SWAP="󰓡 "
+    I_UPD="󰚰 "; I_PKG="󰏖 "; I_AUR="󰣇 "; I_SH="󰟤 "; I_LOC="󰗊 "; I_DE="󰇧 "; I_WM="󰖩 "
+    I_TERM=" "; I_FONT="󰛖 "; I_CPU="󰻠 "; I_GPU="󰢮 "; I_RAM="󰍛 "; I_SWAP="󰓡 "
     I_DISK="󰋊 "; I_DISP="󰍹 "; I_AUD="󰓃 "; I_THM="󰉼 "; I_ICO="󰀻 "; I_CUR="󰇀 "
     I_PAD="󰊗 "; I_IP="󰩟 "; I_PLAY="󰎈 "; I_MEDIA="󰝚 "; I_PAL="󰸱 "; I_BAT="󰁹 "
+    I_MIC="󰍬 "
 else
     I_USER=""; I_HOST=""; I_TIME=""; I_OS=""; I_KER=""; I_UP=""
     I_UPD=""; I_PKG=""; I_AUR=""; I_SH=""; I_LOC=""; I_DE=""; I_WM=""
     I_TERM=""; I_FONT=""; I_CPU=""; I_GPU=""; I_RAM=""; I_SWAP=""
     I_DISK=""; I_DISP=""; I_AUD=""; I_THM=""; I_ICO=""; I_CUR=""
     I_PAD=""; I_IP=""; I_PLAY=""; I_MEDIA=""; I_PAL=""; I_BAT=""
+    I_MIC=""
 fi
 
 # Build sed replacement expression for all placeholders
@@ -204,6 +214,7 @@ SED_ARGS=(
     -e "s|{{I_MEDIA}}|${I_MEDIA}|g"
     -e "s|{{I_PAL}}|${I_PAL}|g"
     -e "s|{{I_BAT}}|${I_BAT}|g"
+    -e "s|{{I_MIC}}|${I_MIC}|g"
 )
 
 # Gold variant also needs SCRIPTS_DIR replacement

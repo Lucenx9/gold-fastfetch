@@ -7,31 +7,35 @@
     "brightColor": true, "key": { "width": 18 },
     "size": { "ndigits": 1, "binaryPrefix": "iec" },
     "temp": { "unit": "C", "ndigits": 0 },
+    "freq": { "ndigits": 1 },
     "duration": { "abbreviation": true },
     "bar": { "width": 10, "char": { "elapsed": "━", "total": "━" }, "border": { "left": "", "right": "" } },
     "percent": { "type": 3, "ndigits": 0 }
   },
   "modules": [
-    { "type": "custom", "format": "╭──────────────────────────────────────────────────────────", "outputColor": "cyan" },
+    { "type": "custom", "format": "╭──────────────────────────────────────────────────────────", "outputColor": "light_magenta" },
 
     { "type": "title", "key": "│ {{I_USER}}User", "keyColor": "light_magenta", "format": "{user-name}" },
     { "type": "title", "key": "│ {{I_HOST}}Host", "keyColor": "light_magenta", "format": "{host-name}" },
-    { "type": "datetime", "key": "│ {{I_TIME}}Time", "keyColor": "light_magenta", "format": "{year}-{month}-{day-in-month} {hour}:{minute}" },
+    { "type": "datetime", "key": "│ {{I_TIME}}Time", "keyColor": "light_magenta", "format": "{year}-{month-pretty}-{day-pretty} {hour-pretty}:{minute-pretty}" },
 
     { "type": "custom", "format": "├──────────────────────────────────────────────────────────", "outputColor": "cyan" },
 
     { "type": "os", "key": "│ {{I_OS}}OS", "keyColor": "cyan" },
     { "type": "kernel", "key": "│ {{I_KER}}Kernel", "keyColor": "cyan" },
     { "type": "uptime", "key": "│ {{I_UP}}Uptime", "keyColor": "cyan" },
-    { "type": "command", "key": "│ {{I_UPD}}Updates", "keyColor": "yellow", "text": "bash \"{{SCRIPTS_DIR}}/updates.sh\"" },
+    { "type": "command", "key": "│ {{I_UPD}}Updates", "keyColor": "cyan", "text": "bash \"{{SCRIPTS_DIR}}/updates.sh\"" },
     { "type": "packages", "key": "│ {{I_PKG}}Packages", "keyColor": "cyan", "format": "{all} (pacman {pacman}, flatpak {flatpak-all})" },
-    { "type": "command", "key": "│ {{I_AUR}}Foreign", "keyColor": "cyan", "text": "pacman -Qmq 2>/dev/null | wc -l" },
-    { "type": "shell", "key": "│ {{I_SH}}Shell", "keyColor": "cyan" },
-    { "type": "locale", "key": "│ {{I_LOC}}Locale", "keyColor": "cyan" },
-    { "type": "de", "key": "│ {{I_DE}}Desktop", "keyColor": "cyan" },
-    { "type": "wm", "key": "│ {{I_WM}}WM", "keyColor": "cyan" },
-    { "type": "terminal", "key": "│ {{I_TERM}}Terminal", "keyColor": "cyan" },
-    { "type": "terminalfont", "key": "│ {{I_FONT}}Term Font", "keyColor": "cyan" },
+    { "type": "command", "key": "│ {{I_AUR}}AUR Pkgs", "keyColor": "cyan", "text": "pacman -Qmq 2>/dev/null | wc -l" },
+
+    { "type": "custom", "format": "├──────────────────────────────────────────────────────────", "outputColor": "yellow" },
+
+    { "type": "shell", "key": "│ {{I_SH}}Shell", "keyColor": "yellow" },
+    { "type": "locale", "key": "│ {{I_LOC}}Locale", "keyColor": "yellow" },
+    { "type": "de", "key": "│ {{I_DE}}Desktop", "keyColor": "yellow" },
+    { "type": "wm", "key": "│ {{I_WM}}WM", "keyColor": "yellow" },
+    { "type": "terminal", "key": "│ {{I_TERM}}Terminal", "keyColor": "yellow" },
+    { "type": "terminalfont", "key": "│ {{I_FONT}}Term Font", "keyColor": "yellow" },
 
     { "type": "custom", "format": "├──────────────────────────────────────────────────────────", "outputColor": "green" },
 
@@ -50,14 +54,14 @@
     { "type": "icons", "key": "│ {{I_ICO}}Icons", "keyColor": "blue" },
     { "type": "font", "key": "│ {{I_FONT}}Sys Fonts", "keyColor": "blue" },
     { "type": "cursor", "key": "│ {{I_CUR}}Cursor", "keyColor": "blue" },
-    { "type": "gamepad", "key": "│ {{I_PAD}}Gamepad", "keyColor": "blue" },
+    { "type": "command", "key": "│ {{I_MIC}}Mic", "keyColor": "blue", "text": "bash -c 'mic=$(pactl list sources 2>/dev/null | awk \"/Name:/{name=\\$2} /Description:/{if(name !~ /monitor|bluez/) {sub(/.*Description: /,\\\"\\\"); sub(/  *Mono$/,\\\"\\\"); print}}\" | paste -sd \", \"); [ -n \"$mic\" ] && echo \"$mic\" || exit 1'" },
+    { "type": "command", "key": "│ {{I_PAD}}Gamepad", "keyColor": "blue", "text": "bash -c 'names=$(cat /sys/class/input/js*/device/name 2>/dev/null | paste -sd \", \"); [ -n \"$names\" ] && echo \"$names\" || exit 1'" },
     { "type": "localip", "key": "│ {{I_IP}}Local IP", "keyColor": "blue", "compact": true, "showIpv4": true, "showIpv6": false, "defaultRouteOnly": true },
 
-    { "type": "custom", "format": "├──────────────────────────────────────────────────────────", "outputColor": "yellow" },
-    { "type": "player", "key": "│ {{I_PLAY}}Player", "keyColor": "yellow" },
-    { "type": "media", "key": "│ {{I_MEDIA}}Playing", "keyColor": "yellow" },
-
     { "type": "custom", "format": "├──────────────────────────────────────────────────────────", "outputColor": "magenta" },
+
+    { "type": "player", "key": "│ {{I_PLAY}}Player", "keyColor": "magenta" },
+    { "type": "media", "key": "│ {{I_MEDIA}}Playing", "keyColor": "magenta" },
     { "type": "colors", "key": "│ {{I_PAL}}Palette", "keyColor": "magenta", "symbol": "circle" },
     { "type": "custom", "format": "╰──────────────────────────────────────────────────────────", "outputColor": "magenta" }
   ]

@@ -1,27 +1,27 @@
 #!/usr/bin/env bash
 # lib.sh - Shared helper library for Gold Fastfetch scripts
-set -euo pipefail
+# NOTE: Do not set shell options here — callers control their own set -euo pipefail.
 
 # shellcheck disable=SC2034
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# --- Colors ---
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NC='\033[0m'
+# --- Colors (using $'...' so escapes are real bytes, not literals) ---
+GREEN=$'\033[0;32m'
+YELLOW=$'\033[1;33m'
+RED=$'\033[0;31m'
+NC=$'\033[0m'
 
 # --- Logging (uses printf instead of echo -e) ---
 log_info() {
-    printf "${GREEN}%s${NC}\n" "$*"
+    printf '%s%s%s\n' "$GREEN" "$*" "$NC"
 }
 
 log_warn() {
-    printf "${YELLOW}%s${NC}\n" "$*"
+    printf '%s%s%s\n' "$YELLOW" "$*" "$NC"
 }
 
 log_error() {
-    printf "${RED}%s${NC}\n" "$*"
+    printf '%s%s%s\n' "$RED" "$*" "$NC"
 }
 
 die() {

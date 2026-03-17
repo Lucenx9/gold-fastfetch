@@ -26,21 +26,22 @@ generate_config() {
     local I_UPD I_PKG I_AUR I_SH I_LOC I_DE I_WM
     local I_TERM I_FONT I_CPU I_GPU I_RAM I_SWAP
     local I_DISK I_DISP I_AUD I_THM I_ICO I_CUR
-    local I_PAD I_IP I_PLAY I_MEDIA I_PAL I_BAT
+    local I_PAD I_IP I_PLAY I_MEDIA I_PAL I_BAT I_MIC
 
     if [[ "$use_icons" -eq 1 ]]; then
         I_USER="󰟷 "; I_HOST="󰌢 "; I_TIME="󰃰 "; I_OS="󰏤 "; I_KER="󰌽 "; I_UP="󰥔 "
-        I_UPD="󰚰 "; I_PKG="󰏖 "; I_AUR="󰣇 "; I_SH="󰟤 "; I_LOC="󰗊 "; I_DE="󰍹 "; I_WM="󰖩 "
-        I_TERM=" "; I_FONT="󰛖 "; I_CPU="󰻠 "; I_GPU="󰢮 "; I_RAM="󰍛 "; I_SWAP="󰓡 "
-        I_DISK="󰋊 "; I_GPU="󰢮 "; I_RAM="󰍛 "; I_SWAP="󰓡 "
+        I_UPD="󰚰 "; I_PKG="󰏖 "; I_AUR="󰣇 "; I_SH="󰟤 "; I_LOC="󰗊 "; I_DE="󰇧 "; I_WM="󰖩 "
+        I_TERM=" "; I_FONT="󰛖 "; I_CPU="󰻠 "; I_GPU="󰢮 "; I_RAM="󰍛 "; I_SWAP="󰓡 "
         I_DISK="󰋊 "; I_DISP="󰍹 "; I_AUD="󰓃 "; I_THM="󰉼 "; I_ICO="󰀻 "; I_CUR="󰇀 "
         I_PAD="󰊗 "; I_IP="󰩟 "; I_PLAY="󰎈 "; I_MEDIA="󰝚 "; I_PAL="󰸱 "; I_BAT="󰁹 "
+        I_MIC="󰍬 "
     else
         I_USER=""; I_HOST=""; I_TIME=""; I_OS=""; I_KER=""; I_UP=""
         I_UPD=""; I_PKG=""; I_AUR=""; I_SH=""; I_LOC=""; I_DE=""; I_WM=""
         I_TERM=""; I_FONT=""; I_CPU=""; I_GPU=""; I_RAM=""; I_SWAP=""
         I_DISK=""; I_DISP=""; I_AUD=""; I_THM=""; I_ICO=""; I_CUR=""
         I_PAD=""; I_IP=""; I_PLAY=""; I_MEDIA=""; I_PAL=""; I_BAT=""
+        I_MIC=""
     fi
 
     local SED_ARGS=(
@@ -75,6 +76,7 @@ generate_config() {
         -e "s|{{I_MEDIA}}|${I_MEDIA}|g"
         -e "s|{{I_PAL}}|${I_PAL}|g"
         -e "s|{{I_BAT}}|${I_BAT}|g"
+        -e "s|{{I_MIC}}|${I_MIC}|g"
     )
 
     # Gold variant needs SCRIPTS_DIR replacement — use placeholder for snapshots

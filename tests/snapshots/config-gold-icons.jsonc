@@ -7,31 +7,35 @@
     "brightColor": true, "key": { "width": 18 },
     "size": { "ndigits": 1, "binaryPrefix": "iec" },
     "temp": { "unit": "C", "ndigits": 0 },
+    "freq": { "ndigits": 1 },
     "duration": { "abbreviation": true },
     "bar": { "width": 10, "char": { "elapsed": "━", "total": "━" }, "border": { "left": "", "right": "" } },
     "percent": { "type": 3, "ndigits": 0 }
   },
   "modules": [
-    { "type": "custom", "format": "╭──────────────────────────────────────────────────────────", "outputColor": "cyan" },
+    { "type": "custom", "format": "╭──────────────────────────────────────────────────────────", "outputColor": "light_magenta" },
 
     { "type": "title", "key": "│ 󰟷 User", "keyColor": "light_magenta", "format": "{user-name}" },
     { "type": "title", "key": "│ 󰌢 Host", "keyColor": "light_magenta", "format": "{host-name}" },
-    { "type": "datetime", "key": "│ 󰃰 Time", "keyColor": "light_magenta", "format": "{year}-{month}-{day-in-month} {hour}:{minute}" },
+    { "type": "datetime", "key": "│ 󰃰 Time", "keyColor": "light_magenta", "format": "{year}-{month-pretty}-{day-pretty} {hour-pretty}:{minute-pretty}" },
 
     { "type": "custom", "format": "├──────────────────────────────────────────────────────────", "outputColor": "cyan" },
 
     { "type": "os", "key": "│ 󰏤 OS", "keyColor": "cyan" },
     { "type": "kernel", "key": "│ 󰌽 Kernel", "keyColor": "cyan" },
     { "type": "uptime", "key": "│ 󰥔 Uptime", "keyColor": "cyan" },
-    { "type": "command", "key": "│ 󰚰 Updates", "keyColor": "yellow", "text": "bash \"{{SCRIPTS_DIR}}/updates.sh\"" },
+    { "type": "command", "key": "│ 󰚰 Updates", "keyColor": "cyan", "text": "bash \"{{SCRIPTS_DIR}}/updates.sh\"" },
     { "type": "packages", "key": "│ 󰏖 Packages", "keyColor": "cyan", "format": "{all} (pacman {pacman}, flatpak {flatpak-all})" },
-    { "type": "command", "key": "│ 󰣇 Foreign", "keyColor": "cyan", "text": "pacman -Qmq 2>/dev/null | wc -l" },
-    { "type": "shell", "key": "│ 󰟤 Shell", "keyColor": "cyan" },
-    { "type": "locale", "key": "│ 󰗊 Locale", "keyColor": "cyan" },
-    { "type": "de", "key": "│ 󰍹 Desktop", "keyColor": "cyan" },
-    { "type": "wm", "key": "│ 󰖩 WM", "keyColor": "cyan" },
-    { "type": "terminal", "key": "│  Terminal", "keyColor": "cyan" },
-    { "type": "terminalfont", "key": "│ 󰛖 Term Font", "keyColor": "cyan" },
+    { "type": "command", "key": "│ 󰣇 AUR Pkgs", "keyColor": "cyan", "text": "pacman -Qmq 2>/dev/null | wc -l" },
+
+    { "type": "custom", "format": "├──────────────────────────────────────────────────────────", "outputColor": "yellow" },
+
+    { "type": "shell", "key": "│ 󰟤 Shell", "keyColor": "yellow" },
+    { "type": "locale", "key": "│ 󰗊 Locale", "keyColor": "yellow" },
+    { "type": "de", "key": "│ 󰇧 Desktop", "keyColor": "yellow" },
+    { "type": "wm", "key": "│ 󰖩 WM", "keyColor": "yellow" },
+    { "type": "terminal", "key": "│  Terminal", "keyColor": "yellow" },
+    { "type": "terminalfont", "key": "│ 󰛖 Term Font", "keyColor": "yellow" },
 
     { "type": "custom", "format": "├──────────────────────────────────────────────────────────", "outputColor": "green" },
 
@@ -50,14 +54,14 @@
     { "type": "icons", "key": "│ 󰀻 Icons", "keyColor": "blue" },
     { "type": "font", "key": "│ 󰛖 Sys Fonts", "keyColor": "blue" },
     { "type": "cursor", "key": "│ 󰇀 Cursor", "keyColor": "blue" },
-    { "type": "gamepad", "key": "│ 󰊗 Gamepad", "keyColor": "blue" },
+    { "type": "command", "key": "│ 󰍬 Mic", "keyColor": "blue", "text": "bash -c 'mic=$(pactl list sources 2>/dev/null | awk \"/Name:/{name=\\$2} /Description:/{if(name !~ /monitor|bluez/) {sub(/.*Description: /,\\\"\\\"); sub(/  *Mono$/,\\\"\\\"); print}}\" | paste -sd \", \"); [ -n \"$mic\" ] && echo \"$mic\" || exit 1'" },
+    { "type": "command", "key": "│ 󰊗 Gamepad", "keyColor": "blue", "text": "bash -c 'names=$(cat /sys/class/input/js*/device/name 2>/dev/null | paste -sd \", \"); [ -n \"$names\" ] && echo \"$names\" || exit 1'" },
     { "type": "localip", "key": "│ 󰩟 Local IP", "keyColor": "blue", "compact": true, "showIpv4": true, "showIpv6": false, "defaultRouteOnly": true },
 
-    { "type": "custom", "format": "├──────────────────────────────────────────────────────────", "outputColor": "yellow" },
-    { "type": "player", "key": "│ 󰎈 Player", "keyColor": "yellow" },
-    { "type": "media", "key": "│ 󰝚 Playing", "keyColor": "yellow" },
-
     { "type": "custom", "format": "├──────────────────────────────────────────────────────────", "outputColor": "magenta" },
+
+    { "type": "player", "key": "│ 󰎈 Player", "keyColor": "magenta" },
+    { "type": "media", "key": "│ 󰝚 Playing", "keyColor": "magenta" },
     { "type": "colors", "key": "│ 󰸱 Palette", "keyColor": "magenta", "symbol": "circle" },
     { "type": "custom", "format": "╰──────────────────────────────────────────────────────────", "outputColor": "magenta" }
   ]

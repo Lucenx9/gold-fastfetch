@@ -5,7 +5,6 @@ CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/fastfetch"
 CACHE_FILE="$CACHE_DIR/updates.txt"
 LOCK_FILE="$CACHE_DIR/updates.lock"
 CACHE_TTL=1800
-LOCK_TIMEOUT=300
 
 mkdir -p "$CACHE_DIR"
 
@@ -49,19 +48,13 @@ should_refresh() {
   fi
 }
 
-if [[ -d "$LOCK_FILE" ]]; then
-  lock_age=$(( $(date +%s) - $(stat -c %Y "$LOCK_FILE" 2>/dev/null || echo 0) ))
-  if (( lock_age > LOCK_TIMEOUT )); then rmdir "$LOCK_FILE" 2>/dev/null || true; fi
-fi
-
-# First run: sync, subsequent: async
+# First run: sync, subsequent: async with flock
 if [[ ! -f "$CACHE_FILE" ]]; then
   count_updates
 elif should_refresh; then
-  ( if mkdir "$LOCK_FILE" 2>/dev/null; then
-      trap 'rmdir "$LOCK_FILE" 2>/dev/null || true' EXIT
-      count_updates
-    fi ) >/dev/null 2>&1 &
+  ( flock -n 9 || exit 0
+    count_updates
+  ) 9>"$LOCK_FILE" >/dev/null 2>&1 &
 fi
 
 # Ensure cache file exists before reading
